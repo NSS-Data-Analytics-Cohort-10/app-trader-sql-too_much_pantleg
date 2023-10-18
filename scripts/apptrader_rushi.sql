@@ -22,21 +22,20 @@ INNER JOIN app_store_apps AS a
 USING (name);
 --This query gives us all apps that are on both app stores as well as a column that shows what App Trader's purchase price will be; the column is called real_price at the far right of the output.
 
+
 SELECT *,
-	CASE WHEN CAST(price AS MONEY) > CAST(0 AS MONEY) THEN CAST(price*10000 AS MONEY)
-	ELSE CAST(10000 AS MONEY) END AS real_price
+	CASE WHEN CAST(price AS MONEY) > CAST(0 AS MONEY) THEN CAST(price AS MONEY)*10000
+	WHEN CAST(price AS MONEY) = CAST(0 AS MONEY) THEN CAST(10000 AS MONEY)
+	ELSE CAST(10000 AS MONEY) END AS purchase_price
 FROM play_store_apps;
-
-
-
-SELECT *, CAST(price AS MONEY)*10000 AS real_price
-FROM play_store_apps;
+--This query is all columns in the play_store_apps table with the final column purchase_price as App Trader's purchase price for that app.
 
 
 SELECT *,
-	CASE WHEN CAST(price AS INTEGER) > 0 THEN CAST(price AS MONEY)*10000
-	WHEN CAST(price AS INTEGER) = 0 THEN CAST(10000 AS MONEY)
+	CASE WHEN CAST(price AS MONEY) > CAST(0 AS MONEY) THEN CAST(price AS MONEY)*10000
+	WHEN CAST(price AS MONEY) = CAST(0 AS MONEY) THEN CAST(10000 AS MONEY)
 	ELSE CAST(10000 AS MONEY) END AS real_price
-FROM play_store_apps;
+FROM app_store_apps;
+----This query is all columns in the app_store_apps table with the final column purchase_price as App Trader's purchase price for that app.
 
 
