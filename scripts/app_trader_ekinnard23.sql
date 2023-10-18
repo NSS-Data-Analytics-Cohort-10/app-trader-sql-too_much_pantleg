@@ -22,26 +22,34 @@ ON play_store_apps.name = app_store_apps.name
 	
 		d. For every half point that an app gains in rating, its projected lifespan increases by one year. In other words, an app with a rating of 0 can be expected to be in use for 1 year, an app with a rating of 1.0 can be expected to last 3 years, and an app with a rating of 4.0 can be expected to last 9 years.
 
-SELECT name,
-	rating,
-	rating
-	
-FROM play_store_apps
-INNER JOIN app_store_apps
-ON play_store_apps.name = app_store_apps.name
-
-
 
 	- App store ratings should be calculated by taking the average of the scores from both app stores and rounding to the nearest 0.5.
+	
+SELECT play_store_apps.name,
+	play_store_apps.rating AS psa_rating,
+	app_store_apps.rating AS asa_rating,
+	(psa_rating + asa_rating)/2
+FROM play_store_apps
+FULL JOIN app_store_apps
+USING (name)
 
 
 
-Your team has been hired by a new company called App Trader to help them explore and gain insights from apps that are made available through the Apple App Store and Android Play Store. App Trader is a broker that purchases the rights to apps from developers in order to market the apps and offer in-app purchase. 
+help them explore and gain insights from apps that are made available through the Apple App Store and Android Play Store. App Trader is a broker that purchases the rights to apps from developers in order to market the apps and offer in-app purchase. 
 
 Unfortunately, the data for Apple App Store apps and Android Play Store Apps is located in separate tables with no referential integrity.
 
 #### 1. Loading the data
 a. Launch PgAdmin and create a new database called app_trader.  
+
+RUSHI:
+SELECT *,
+ CASE WHEN CAST(p.price AS MONEY) > CAST(a.price AS MONEY) THEN CAST(p.price AS MONEY)*10000
+ WHEN CAST(a.price AS MONEY) > CAST(p.price AS MONEY) THEN CAST(a.price AS MONEY)*10000
+ ELSE CAST(10000 AS MONEY) END AS real_price
+FROM play_store_apps AS p
+INNER JOIN app_store_apps AS a
+USING (name);
 
 b. Right-click on the app_trader database and choose `Restore...`  
 
@@ -93,7 +101,7 @@ a. App Trader will purchase apps for 10,000 times the price of the app. For apps
 
 	c. Submit a report based on your findings. All analysis work must be done using PostgreSQL, however you may export query results to create charts in Excel for your report. 
 
-	updated 2/18/2023
+	
 
 	SELECT *  
 	FROM play_store_apps
