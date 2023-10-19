@@ -16,7 +16,8 @@ SELECT *,
  ELSE CAST(10000 AS MONEY) END AS purchase_price
 FROM play_store_apps AS p
 FULL JOIN app_store_apps AS a
-USING (name);
+USING (name)
+WHERE a.price <= .99;
 
 
 -- b. Apps earn $5000 per month, per app store it is on, from in-app advertising and in-app purchases, regardless of the price of the app.
@@ -36,7 +37,7 @@ CASE WHEN a.name = p.name THEN 'Yes'
 ELSE 'No'
 END AS in_both
 FROM app_store_apps AS a
-LEFT JOIN play_store_apps AS p
+INNER JOIN play_store_apps AS p
 USING (name)
 ORDER BY in_both DESC
 
@@ -46,7 +47,7 @@ ELSE 'No'
 END AS in_both,
 CAST(1000 AS MONEY) AS market_price
 FROM app_store_apps AS a
-LEFT JOIN play_store_apps AS p
+INNER JOIN play_store_apps AS p
 USING (name)
 ORDER BY in_both DESC
 UNIQUE NAME | IF FOUND IN BOTH (case when if app=play then yes else no)| $1000.00
@@ -62,6 +63,27 @@ USING (name)
     
 -- - App store ratings should be calculated by taking the average of the scores from both app stores and rounding to the nearest 0.5.
 
+SELECT DISTINCT play_store_apps.name,
+	Round(avg_rating /.5)*.5 AS averages,
+	app_store_apps.rating AS asa_rating,
+	play_store_apps.rating AS psa_rating
+FROM (SELECT play_store_apps.name, 
+	  (play_store_apps.rating + app_store_apps.rating)/2 AS avg_rating
+	  FROM play_store_apps
+	  INNER JOIN app_store_apps
+	  USING (name)) AS avg_ratings
+	  INNER JOIN play_store_apps
+	  USING (name)
+	  	Inner Join app_store_apps
+		Using (name)
+		
+SELECT DISTINCT name,a.rating, p.rating,
+CASE WHEN a.name = p.name THEN 'Yes'
+ELSE 'No' END AS in_both
+FROM app_store_apps AS a
+LEFT JOIN play_store_apps AS p
+USING (name)
+ORDER BY in_both DESC;
 
 
 -- e. App Trader would prefer to work with apps that are available in both the App Store and the Play Store since they can market both for the same $1000 per month.
