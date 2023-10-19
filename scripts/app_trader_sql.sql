@@ -13,7 +13,7 @@
 SELECT *,
  CASE WHEN CAST(p.price AS MONEY) > CAST(a.price AS MONEY) THEN CAST(p.price AS MONEY)*10000
  WHEN CAST(a.price AS MONEY) > CAST(p.price AS MONEY) THEN CAST(a.price AS MONEY)*10000
- ELSE CAST(10000 AS MONEY) END AS real_price
+ ELSE CAST(10000 AS MONEY) END AS purchase_price
 FROM play_store_apps AS p
 FULL JOIN app_store_apps AS a
 USING (name);
@@ -27,25 +27,36 @@ USING (name);
 
 
 
--- c. App Trader will spend an average of $1000 per month to market an app regardless of the price of the app. If App Trader owns rights to the app in both stores, it can market the app for both stores for a single cost of $1000 per month. Create a SQL formula to create a single feild using price from both app_store_apps and play_store_apps. 
+-- c. App Trader will spend an average of $1000 per month to market an app regardless of the price of the app. If App Trader owns rights to the app in both stores, it can market the app for both stores for a single cost of $1000 per month. 
     
 -- - An app that costs $200,000 and an app that costs $1.00 will both cost $1000 a month for marketing, regardless of the number of stores it is in.
 
-SELECT a.name, a.price  p.price 
-CASE WHEN CAST(a.price AS MONEY) IS NOT NULL AND CAST(p.price AS MONEY) IS NOT NULL THEN
-CAST(a.price AS MONEY) + CAST(p.price AS MONEY) + 1000
-WHEN CAST(a.price AS MONEY) IS NOT NULL THEN
-CAST(a.price AS MONEY) + 1000
-WHEN p.price IS NOT NULL THEN p.price + 1000
-ELSE NULL END AS total_cost
-FROM app_store_apps AS a
-FULL OUTER JOIN play_store_apps AS p 
-ON a.name = p.name;
-
-SELECT p.price
+SELECT DISTINCT (name), CAST(1000 AS MONEY) AS market_price,
+CASE WHEN a.name = p.name THEN 'Yes'
+ELSE 'No'
+END AS in_both
 FROM app_store_apps AS a
 LEFT JOIN play_store_apps AS p
 USING (name)
+ORDER BY in_both DESC
+
+SELECT DISTINCT (name), 
+CASE WHEN a.name = p.name THEN 'Yes'
+ELSE 'No'
+END AS in_both,
+CAST(1000 AS MONEY) AS market_price
+FROM app_store_apps AS a
+LEFT JOIN play_store_apps AS p
+USING (name)
+ORDER BY in_both DESC
+UNIQUE NAME | IF FOUND IN BOTH (case when if app=play then yes else no)| $1000.00
+
+
+SELECT name
+FROM play_store_apps AS a
+LEFT JOIN app_store_apps AS p
+USING (name)
+
 
 -- d. For every half point that an app gains in rating, its projected lifespan increases by one year. In other words, an app with a rating of 0 can be expected to be in use for 1 year, an app with a rating of 1.0 can be expected to last 3 years, and an app with a rating of 4.0 can be expected to last 9 years.
     
