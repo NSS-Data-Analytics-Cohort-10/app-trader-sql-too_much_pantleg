@@ -105,5 +105,16 @@ ORDER BY purchase_price;
 
 
 
-
-
+SELECT *,
+CAST(1000 AS MONEY) AS market_price,
+	CASE WHEN a.name = p.name THEN 'Yes' ELSE 'No'END AS in_both,
+	CASE WHEN CAST(p.price AS MONEY) > CAST(a.price AS MONEY) AND CAST(p.price AS MONEY) > CAST(1 AS MONEY) THEN CAST(p.price AS MONEY)*10000
+	WHEN CAST(a.price AS MONEY) > CAST(p.price AS MONEY) AND CAST(a.price AS MONEY) > CAST(1 AS MONEY) THEN CAST(a.price AS MONEY)*10000
+	WHEN CAST(p.price AS MONEY) = CAST(a.price AS MONEY) AND CAST(p.price AS MONEY) < CAST(1 AS MONEY) THEN CAST(10000 AS MONEY)
+	WHEN CAST(p.price AS MONEY) = CAST(a.price AS MONEY) AND CAST(p.price AS MONEY) > CAST(1 AS MONEY) THEN CAST(p.price AS MONEY)*10000
+	ELSE CAST(10000 AS MONEY) END AS purchase_price,
+	ROUND(ROUND(((p.rating+a.rating)/2)/5,1)*5,1) AS avg_rating, ((ROUND(ROUND(((p.rating+a.rating)/2)/5,1)*5,1)*2)+1) AS lifespan
+FROM play_store_apps AS p
+INNER JOIN app_store_apps AS a
+USING (name)
+ORDER BY name;
