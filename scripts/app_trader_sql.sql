@@ -19,6 +19,26 @@ FULL JOIN app_store_apps AS a
 USING (name)
 WHERE a.price <= .99;
 
+SELECT *,
+CAST(1000 AS MONEY) AS market_price,
+	Round(avg_rating /.5)*.5 AS averages,
+	((Round(avg_rating /.5)*.5)*24+12) AS lifespan_months,
+	CAST(((Round(avg_rating /.5)*.5)*24+12)*5000 AS MONEY) AS lifespan_income,
+	app_store_apps.rating AS asa_rating,
+	play_store_apps.rating AS psa_rating,
+	CASE WHEN a.name = p.name THEN 'Yes' ELSE 'No'END AS in_both,
+	CASE WHEN CAST(p.price AS MONEY) > CAST(a.price AS MONEY) AND CAST(p.price AS MONEY) > CAST(1 AS MONEY) THEN CAST(p.price AS MONEY)*10000
+	WHEN CAST(a.price AS MONEY) > CAST(p.price AS MONEY) AND CAST(a.price AS MONEY) > CAST(1 AS MONEY) THEN CAST(a.price AS MONEY)*10000
+	WHEN CAST(p.price AS MONEY) = CAST(a.price AS MONEY) AND CAST(p.price AS MONEY) < CAST(1 AS MONEY) THEN CAST(10000 AS MONEY)
+	WHEN CAST(p.price AS MONEY) = CAST(a.price AS MONEY) AND CAST(p.price AS MONEY) > CAST(1 AS MONEY) THEN CAST(p.price AS MONEY)*10000
+	ELSE CAST(10000 AS MONEY) END AS purchase_price
+FROM play_store_apps AS p
+INNER JOIN app_store_apps AS a
+USING (name)
+ORDER BY name
+
+
+
 
 -- b. Apps earn $5000 per month, per app store it is on, from in-app advertising and in-app purchases, regardless of the price of the app.
     
@@ -35,11 +55,10 @@ WHERE a.price <= .99;
 SELECT DISTINCT (name), CAST(1000 AS MONEY) AS market_price,
 CASE WHEN a.name = p.name THEN 'Yes'
 ELSE 'No'
-END AS in_both
+END AS in_both,
 FROM app_store_apps AS a
 INNER JOIN play_store_apps AS p
-USING (name)
-ORDER BY in_both DESC
+USING (name);
 
 SELECT DISTINCT (name), 
 CASE WHEN a.name = p.name THEN 'Yes'
@@ -102,7 +121,27 @@ ORDER BY in_both DESC;
 -- c. Submit a report based on your findings. All analysis work must be done using PostgreSQL, however you may export query results to create charts in Excel for your report. 
 
 
-
+SELECT DISTINCT name,
+	Round(avg_rating /.5)*.5 AS averages,
+	((Round(avg_rating /.5)*.5)*24+12) AS lifespan_months,
+	CAST(((Round(avg_rating /.5)*.5)*24+12)*5000 AS MONEY) AS lifespan_income,
+	a.rating AS asa_rating,
+	p.rating AS psa_rating,
+	CASE WHEN a.name = p.name THEN 'Yes' ELSE 'No'END AS in_both,
+	CASE WHEN CAST(p.price AS MONEY) > CAST(a.price AS MONEY) AND CAST(p.price AS MONEY) > CAST(1 AS MONEY) THEN CAST(p.price AS MONEY)*10000
+	WHEN CAST(a.price AS MONEY) > CAST(p.price AS MONEY) AND CAST(a.price AS MONEY) > CAST(1 AS MONEY) THEN CAST(a.price AS MONEY)*10000
+	WHEN CAST(p.price AS MONEY) = CAST(a.price AS MONEY) AND CAST(p.price AS MONEY) < CAST(1 AS MONEY) THEN CAST(10000 AS MONEY)
+	WHEN CAST(p.price AS MONEY) = CAST(a.price AS MONEY) AND CAST(p.price AS MONEY) > CAST(1 AS MONEY) THEN CAST(p.price AS MONEY)*10000
+	ELSE CAST(10000 AS MONEY) END AS purchase_price
+FROM (SELECT p.name, 
+	  (p.rating + a.rating)/2 AS avg_rating
+	  FROM play_store_apps AS p
+	  INNER JOIN app_store_apps AS a
+	  USING (name)) AS avg_ratings
+	  INNER JOIN play_store_apps AS p
+	  USING (name)
+	  	Inner Join app_store_apps AS a
+		Using (name)
 
 
 
