@@ -1,4 +1,7 @@
-SELECT play_store_apps.name,
+Just Mine (main one below)
+SELECT *
+FROM app_store_apps
+SELECT play_store_apps.name, play_store_apps.category, app_store_apps.primary_genre,
 	Round(avg_rating /.5)*.5 AS averages,
 	((Round(avg_rating /.5)*.5)*24+12) AS lifespan_months,
 	CAST(((Round(avg_rating /.5)*.5)*24+12)*5000 AS MONEY) AS lifespan_income,
@@ -17,6 +20,8 @@ FROM (SELECT play_store_apps.name,
 Integration:
 		
 SELECT DISTINCT name,
+	p.category, 
+	a.primary_genre,
     ROUND(avg_rating / 0.5) * 0.5 AS averages,
     ((ROUND(avg_rating / 0.5) * 0.5) * 24 + 12) AS lifespan_months,
     CAST(((ROUND(avg_rating / 0.5) * 0.5) * 24 + 12) * 4000 AS MONEY) AS lifespan_income,
