@@ -149,7 +149,7 @@ FROM app_store_apps
 LEFT JOIN play_store_apps
 USING (name)
 
-SELECT DISTINCT name AS app_name, category, genres,
+SELECT DISTINCT name AS app_name, category, primary_genre,
     ROUND(avg_rating / 0.5) * 0.5 AS averages,
     ((ROUND(avg_rating / 0.5) * 0.5) * 24 + 12) AS lifespan_months,
     CAST(((ROUND(avg_rating / 0.5) * 0.5) * 24 + 12) * 4000 AS MONEY) AS lifespan_income,
@@ -171,12 +171,11 @@ INNER JOIN app_store_apps AS a
 USING (name)
 LEFT JOIN (
     SELECT p.name,
-        CASE 
-            WHEN CAST(p.price AS MONEY) > CAST(a.price AS MONEY) AND CAST(p.price AS MONEY) > CAST(1 AS MONEY) THEN CAST(p.price AS MONEY) * 10000
-            WHEN CAST(a.price AS MONEY) > CAST(p.price AS MONEY) AND CAST(a.price AS MONEY) > CAST(1 AS MONEY) THEN CAST(a.price AS MONEY) * 10000
-            WHEN CAST(p.price AS MONEY) = CAST(a.price AS MONEY) AND CAST(p.price AS MONEY) < CAST(1 AS MONEY) THEN CAST(10000 AS MONEY)
-            WHEN CAST(p.price AS MONEY) = CAST(a.price AS MONEY) AND CAST(p.price AS MONEY) > CAST(1 AS MONEY) THEN CAST(p.price AS MONEY) * 10000
-            ELSE CAST(10000 AS MONEY) 
+        CASE WHEN CAST(p.price AS MONEY) > CAST(a.price AS MONEY) AND CAST(p.price AS MONEY) > CAST(1 AS MONEY) THEN CAST(p.price AS MONEY) * 10000
+             WHEN CAST(a.price AS MONEY) > CAST(p.price AS MONEY) AND CAST(a.price AS MONEY) > CAST(1 AS MONEY) THEN CAST(a.price AS MONEY) * 10000
+             WHEN CAST(p.price AS MONEY) = CAST(a.price AS MONEY) AND CAST(p.price AS MONEY) < CAST(1 AS MONEY) THEN CAST(10000 AS MONEY)
+             WHEN CAST(p.price AS MONEY) = CAST(a.price AS MONEY) AND CAST(p.price AS MONEY) > CAST(1 AS MONEY) THEN CAST(p.price AS MONEY) * 10000
+             ELSE CAST(10000 AS MONEY) 
         END AS purchase_price
     FROM play_store_apps AS p
     INNER JOIN app_store_apps AS a
